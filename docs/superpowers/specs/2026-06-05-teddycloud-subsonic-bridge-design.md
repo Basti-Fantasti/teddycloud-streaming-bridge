@@ -1,6 +1,6 @@
 # TeddyCloud Audio Bridge — Design
 
-*(repo: `teddycloud-subsonic-bridge`)*
+*(repo: `teddycloud-streaming-bridge`)*
 
 **Date:** 2026-06-05
 **Status:** Approved design / pre-implementation
