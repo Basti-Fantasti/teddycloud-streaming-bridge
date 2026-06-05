@@ -25,6 +25,9 @@ data/
 htmlcov/
 .tox/
 
+# Brainstorm / visual companion scratch
+.superpowers/
+
 # IDE / OS
 .idea/
 .vscode/

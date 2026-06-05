@@ -137,6 +137,8 @@ Six focused modules, each with one clear job and a narrow interface.
 - FastAPI routes: JSON API for browse/search, CRUD on mappings, "regenerate
   playlist", and a settings / test-connection endpoint. Serves the UI.
 - **UI:** server-rendered Jinja2 + HTMX (no build step, small footprint).
+- See the **Web UI** section for the full screen-by-screen design and visual
+  language.
 
 ### 6. `config` — settings & wiring
 - Loads config from env vars (bootstrap) overlaid by values saved in `storage`.
@@ -175,6 +177,91 @@ Six focused modules, each with one clear job and a narrow interface.
 - Delete → remove playlist file from the mounted dir + delete the record.
 - "Regenerate" re-resolves tracks from Subsonic and rewrites the file (finite
   only; endless resolves live).
+
+## Web UI
+
+Server-rendered Jinja2 + HTMX, no build step. The UI has three surfaces inside a
+shared app shell. Interactive mockups (reference, not committed) live under
+`.superpowers/brainstorm/` from the design session.
+
+### Visual language ("cozy")
+
+A warm, tactile "playroom-meets-homelab" aesthetic — friendly to the Toniebox
+world but still a focused admin tool.
+
+- **Background:** warm cream "paper" (`#F6EFE3`) with a very subtle noise grain
+  and faint radial gold/sage glows.
+- **Surfaces:** off-white cards (`#FFFDF8`), `1px` warm borders (`#E7DBC7`),
+  generous `12–18px` rounded corners, soft shadows.
+- **Accent:** coral (`#E0603F`, deep `#C44A2C`) for primary actions and the
+  active nav item (with a chunky `4px` bottom "press" shadow). Secondary: sage
+  `#3E8C7C`, gold `#E0A43B`.
+- **Ink/muted text:** `#2A2420` / `#8C7F70`.
+- **Typography:** display = **Fraunces** (characterful serif, headings);
+  body = **Hanken Grotesk**. Both from Google Fonts; deliberately not generic.
+
+### App shell
+
+- **Left sidebar (≈248px):** brand mark + name; nav with three items —
+  **Library**, **Tonies**, **Settings**; a spacer; and a **connection-status
+  panel** at the bottom showing Subsonic (connected) and Library (mounted) dots.
+- **Main area:** page title + contextual content.
+
+### Library screen (browse + create)
+
+- Title, description, and a **search box** (albums / artists / playlists).
+- **Type tabs** with counts: Albums · Artists · Playlists · Starred.
+- **Cover grid** of cards (cover art, title, subtitle). Hovering a card lifts it
+  and reveals a **＋ Tonie** button — the entry point to the create flow.
+
+### Create Tonie drawer
+
+Slides in from the right over a dimmed library.
+
+- **Source summary:** cover, title, subtitle, and quick facts — track count and
+  total duration (one extra Subsonic call when the drawer opens; accepted).
+- **Tonie name:** prefilled from the source, editable; becomes the playlist
+  `name` and the filename slug.
+- **Playback mode:** two selectable cards — **Finite** (plays tracks in order,
+  skip & resume) and **Endless** (loops like a radio). Selecting **Endless**
+  reveals a **Shuffle** toggle.
+- **Playlist file preview:** shows the exact target path
+  (e.g. `/teddycloud/library/der-gruffelo.tap`).
+- **Footer:** Cancel / ＋ Create Tonie.
+- **Success state:** drawer flips to "✓ Playlist written to `<file>.tap`" with a
+  **copy `lib://…` path** button and a reminder: *"Now assign this playlist to a
+  Tonie/tag in TeddyCloud's admin UI."* (We deliberately don't call TeddyCloud's
+  tag API — this handoff hint closes the loop.)
+
+### Tonies screen (manage)
+
+- Title + **＋ New Tonie** button (alternate entry into the create flow).
+- A **list of rows**, one per mapping: cover, name, a **mode badge**
+  (📖 Finite / 📻 Endless·shuffle), a summary line (source type · track count ·
+  duration / "resolves live" for endless), and the `lib://…` path with a **copy**
+  button.
+- **Per-row actions:** ↻ **Regenerate** (re-resolve from Subsonic and rewrite the
+  file — finite only), ✎ **Edit** (rename / change mode / shuffle), 🗑 **Delete**
+  (removes the record *and* the `.tap` file).
+
+### Settings screen
+
+Grouped panels with a single Save / Reset action bar:
+
+1. **Subsonic server:** URL, username, password, **Test connection** button with
+   live status (server type/version, album count). Bootstraps from env vars if
+   set; UI values persist in SQLite and take over.
+2. **TeddyCloud library:** mounted library path shown **read-only** with a
+   mounted/writable health check (it's a Docker mount — editing here wouldn't
+   remount anything); plus the playlist file extension (default `.tap`).
+3. **Bridge address:** the base URL TeddyCloud uses to reach the audio proxy —
+   baked into every playlist entry.
+4. **Audio & defaults:** MP3 bitrate, default mode for new Tonies, and a
+   "shuffle endless radios by default" toggle.
+
+> **Note on credentials:** the Subsonic password is stored in the bridge's
+> SQLite volume (needed to compute Subsonic token auth). Acceptable under the
+> trusted-LAN assumption.
 
 ## Configuration
 
